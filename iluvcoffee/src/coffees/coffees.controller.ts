@@ -16,7 +16,7 @@ export class CoffeesController {
 
   @Get()
   findAll(@Query() paginationQuery) {
-    // const { limit, offset } = paginationQuery;
+    // const { limit, offset } = paginationQuery; //enables us to set the number of queries by page. {But ehy not implement lazy loading in the frontend?}
     return this.coffeesService.findAll();
   }
 
