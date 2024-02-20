@@ -14,18 +14,17 @@ import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 
 @Controller('coffees')
 export class CoffeesController {
-  constructor(private readonly coffeesService: CoffeesService) {}
+  constructor(private readonly coffeesService: CoffeesService) { }
 
   @Get()
-  findAll() {
-    //@Query() paginationQuery) {
-    // const { limit, offset } = paginationQuery; //enables us to set the number of queries by page. {But why not implement lazy loading in the frontend?}
+  findAll(@Query() paginationQuery) {
+    const { limit, offset } = paginationQuery; //enables us to set the number of queries by page. {But why not implement lazy loading on the frontend?}
     return this.coffeesService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.coffeesService.findOne(id);
+    return this.coffeesService.findOne(+id);
   }
 
   @Post()
@@ -39,7 +38,7 @@ export class CoffeesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.remove(id);
+  delete(@Param('id') id: string) {
+    return this.coffeesService.remove(id);
   }
 }
