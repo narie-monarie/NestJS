@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateCoffeeDto } from './dto/create-coffee.dto';
 import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 import { Flavor } from './entities/flavor.entity';
+import { PaginationQueryDto } from './common/pagination-query.dto';
 
 @Injectable()
 export class CoffeesService {
@@ -15,9 +16,13 @@ export class CoffeesService {
     private readonly flavorRepository: Repository<Flavor>,
   ) { }
 
-  async findAll(): Promise<Coffee[]> {
+  async findAll(paginationQuery: PaginationQueryDto): Promise<Coffee[]> {
+    //enables us to set the number of queries by page. {But why not implement lazy loading on the frontend?}
+    const { limit, offset } = paginationQuery;
     return await this.coffeeRepository.find({
       relations: ['flavors'],
+      skip: offset,
+      take: limit,
     });
   }
 
