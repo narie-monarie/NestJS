@@ -1,43 +1,47 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Coffee } from './entities/coffee.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateCoffeeDto } from './dto/create-coffee.dto';
+import { UpdateCoffeeDto } from './dto/update-coffee.dto';
 
 @Injectable()
 export class CoffeesService {
-  private coffees: Coffee[] = [
-    {
-      id: 1,
-      name: 'Toaster',
-      brand: 'Brew Toast',
-      flavors: ['chocolate', 'vanilla'],
-    },
-  ];
+  constructor(
+    @InjectRepository(Coffee)
+    private readonly coffeeRepository: Repository<Coffee>,
+  ) { }
 
   findAll() {
-    return this.coffees;
+    return this.coffeeRepository.find();
   }
 
-  findOne(id: string) {
-    const coffee = this.coffees.find((item) => item.id === +id);
+  async findOne(id: string) {
+    const coffee = await this.coffeeRepository.findOneBy({ id: +id });
     if (!coffee) {
       throw new NotFoundException(`Coffee ${id} not found`);
     }
     return coffee;
   }
 
-  create(createCofeeDto: any) {
-    this.coffees.push(createCofeeDto);
-    return createCofeeDto;
-  }
-  update(id: string, updateCoffeeDto: any) {
-    const existingCofee = this.findOne(id);
-    if (existingCofee) {
-    }
+  create(createCofeeDto: CreateCoffeeDto) {
+    const coffee = this.coffeeRepository.create(createCofeeDto);
+    return this.coffeeRepository.save(coffee);
   }
 
-  remove(id: string) {
-    const cofeeIndex = this.coffees.findIndex((item) => item.id === +id);
-    if (cofeeIndex >= 0) {
-      this.coffees.splice(cofeeIndex, 1);
+  async update(id: string, updateCoffeeDto: UpdateCoffeeDto) {
+    const coffee = await this.coffeeRepository.preload({
+      id: +id,
+      ...updateCoffeeDto,
+    });
+    if (!coffee) {
+      throw new NotFoundException(`Coffee ${id} not found`);
     }
+    return this.coffeeRepository.save(coffee);
+  }
+
+  async remove(id: string) {
+    const cofeeIndex = await this.coffeeRepository.findOneBy({ id: +id });
+    return this.coffeeRepository.remove(cofeeIndex);
   }
 }
