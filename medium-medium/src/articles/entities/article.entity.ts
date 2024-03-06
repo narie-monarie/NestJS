@@ -1,5 +1,6 @@
 import { Article } from '@prisma/client';
-export class ArticleEntity extends Article {
+
+export class ArticleEntity implements Article {
   id: number;
   title: string;
   description: string;

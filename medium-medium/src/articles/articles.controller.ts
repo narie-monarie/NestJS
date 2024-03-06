@@ -8,6 +8,8 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -37,19 +39,28 @@ export class ArticlesController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string) {
-    return this.articlesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const article = await this.articlesService.findOne(id);
+
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+
+    return article;
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.CREATED)
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articlesService.update(+id, updateArticleDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateArticleDto: UpdateArticleDto,
+  ) {
+    return this.articlesService.update(id, updateArticleDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  remove(@Param('id') id: string) {
-    return this.articlesService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.articlesService.remove(id);
   }
 }
